@@ -39,8 +39,11 @@ param(
 
 $TaskName = "Solio FPL AutoSolve"
 $TaskDescription = "Automatically runs Solio FPL optimization and sends email results"
-$ProjectDir = "C:\Users\erknud3\PythonProjects\solio-autosolve"
-$ScriptPath = Join-Path $ProjectDir "scripts\run_scheduled.ps1"
+
+# Derive paths from script location
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectDir = Split-Path -Parent $ScriptDir
+$ScriptPath = Join-Path $ScriptDir "run_scheduled.ps1"
 
 # Check if running as administrator
 $IsAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)

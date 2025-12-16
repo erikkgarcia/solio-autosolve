@@ -12,8 +12,9 @@
 
 $ErrorActionPreference = "Continue"
 
-# Configuration
-$ProjectDir = "C:\Users\erknud3\PythonProjects\solio-autosolve"
+# Configuration - derive paths from script location
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectDir = Split-Path -Parent $ScriptDir
 $LogDir = Join-Path $ProjectDir "logs"
 $LogFile = Join-Path $LogDir "scheduler.log"
 

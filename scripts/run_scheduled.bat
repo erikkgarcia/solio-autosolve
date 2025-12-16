@@ -2,7 +2,10 @@
 REM Solio AutoSolve - Scheduled Task Runner
 REM This script is designed to be run by Windows Task Scheduler
 
-cd /d "C:\Users\erknud3\PythonProjects\solio-autosolve"
+REM Get the directory where this script is located
+set "SCRIPT_DIR=%~dp0"
+REM Go up one level to project root
+cd /d "%SCRIPT_DIR%.."
 
 REM Run the automation in headless mode
 uv run solio --headless
