@@ -7,7 +7,7 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
 - **Automated Login**: Uses a persistent Chrome profile to maintain Google OAuth sessions
 - **Optimization Solve**: Clicks the "Optimise" button and waits for results
 - **Results Parsing**: Extracts transfer recommendations, projected points, and gameweek plans
-- **Email Notifications**: Sends formatted HTML emails with your optimization results
+- **Email Notifications**: Sends formatted HTML emails via Gmail API (fast, reliable) or SMTP fallback
 - **Scheduled Runs**: Can be configured to run automatically via Windows Task Scheduler
 - **Headless Mode**: Runs without a visible browser window for background automation
 
@@ -17,7 +17,7 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
 - [uv](https://docs.astral.sh/uv/) package manager
 - Google Chrome browser installed
 - A Solio Analytics account (with Google login)
-- Gmail account with an [App Password](https://myaccount.google.com/apppasswords) for sending emails
+- Gmail account (Gmail API recommended, or App Password for SMTP fallback)
 
 ## Installation
 
@@ -42,13 +42,52 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
    cp .env.example .env
    ```
    
-   Edit `.env` with your email credentials:
+   Edit `.env` with your email address:
    ```
    EMAIL_ADDRESS=your.email@gmail.com
-   EMAIL_PASSWORD=your-16-char-app-password
    ```
 
-5. **Initial login** (required once to set up Chrome profile):
+5. **Set up Gmail API** (recommended for fast, reliable email delivery):
+   
+   a. Go to [Google Cloud Console](https://console.cloud.google.com/)
+   
+   b. Create a new project (e.g., "Solio AutoSolve")
+   
+   c. Enable the Gmail API:
+      - Search for "Gmail API" → Click "Enable"
+   
+   d. Configure OAuth consent screen:
+      - Go to "APIs & Services" → "OAuth consent screen"
+      - Select "External" → Create
+      - Fill in app name and your email
+      - Add your email as a test user
+   
+   e. Create OAuth credentials:
+      - Go to "APIs & Services" → "Credentials"
+      - Click "Create Credentials" → "OAuth client ID"
+      - Select "Desktop app" → Create
+      - Download the JSON file
+   
+   f. Save the JSON file as:
+      ```
+      credentials/credentials.json
+      ```
+   
+   g. Authorize the app:
+      ```bash
+      uv run solio-gmail-setup
+      ```
+      This opens a browser - sign in and authorize. Tokens are saved and auto-refresh.
+
+   **Alternative: SMTP with App Password** (if you prefer not to use Gmail API)
+   
+   Add to `.env`:
+   ```
+   EMAIL_PASSWORD=your-16-char-app-password
+   ```
+   Create an App Password at: https://myaccount.google.com/apppasswords
+
+6. **Initial login** (required once to set up Chrome profile):
    ```bash
    uv run solio-login
    ```
@@ -87,6 +126,9 @@ uv run solio-parse
 
 # Email latest results
 uv run solio-email
+
+# Set up/test Gmail API
+uv run solio-gmail-setup
 ```
 
 ## Scheduled Runs (Windows Task Scheduler)
@@ -117,7 +159,8 @@ solio-autosolve/
 │   ├── __init__.py
 │   ├── browser.py       # Browser context management
 │   ├── config.py        # Configuration and paths
-│   ├── email_sender.py  # Email functionality
+│   ├── email_sender.py  # Email functionality (Gmail API + SMTP fallback)
+│   ├── gmail_api.py     # Gmail API integration
 │   ├── login.py         # Login and authentication
 │   ├── main.py          # Main orchestrator
 │   ├── parser.py        # Results HTML parsing
@@ -126,10 +169,11 @@ solio-autosolve/
 │   ├── run_scheduled.ps1       # PowerShell runner for Task Scheduler
 │   ├── run_scheduled.bat       # Batch file alternative
 │   └── setup_scheduled_task.ps1 # Creates Windows scheduled task
+├── credentials/         # Gmail API credentials (gitignored)
 ├── chrome_profile/      # Persistent Chrome profile (gitignored)
 ├── output/              # Saved results HTML files (gitignored)
 ├── logs/                # Scheduler logs (gitignored)
-├── .env                 # Email credentials (gitignored)
+├── .env                 # Email address (gitignored)
 ├── pyproject.toml       # Project configuration
 └── README.md
 ```
@@ -140,7 +184,13 @@ If you want to use this project for yourself, you'll need to change:
 
 ### 1. Email Configuration
 
-Edit `.env` with your own email credentials:
+**Option A: Gmail API (Recommended)**
+
+Faster and more reliable. Follow the Gmail API setup in the Installation section above.
+
+**Option B: SMTP with App Password**
+
+Edit `.env` with your credentials:
 
 ```
 EMAIL_ADDRESS=your.email@gmail.com
@@ -155,10 +205,9 @@ SMTP_SERVER=smtp.your-provider.com
 SMTP_PORT=587
 ```
 
-### 2. Paths (if not using default location)
+### 2. Paths
 
-Edit `scripts/run_scheduled.ps1` and `scripts/setup_scheduled_task.ps1` to update:
-- `$ProjectDir` - Path to your project folder
+The scripts use relative paths, so no changes are needed. Just clone the repo anywhere and run from there.
 
 ### 3. Schedule Time
 
@@ -186,9 +235,15 @@ Fixed by using ASCII characters in output. If you see `?` characters for player 
 
 ### Email not sending
 
-1. Check your `.env` file has correct credentials
+**If using Gmail API:**
+1. Run `uv run solio-gmail-setup` to check status
+2. Ensure `credentials/credentials.json` exists
+3. If `credentials/token.json` is missing, re-authorize by running the setup command
+
+**If using SMTP:**
+1. Check your `.env` file has correct `EMAIL_PASSWORD`
 2. For Gmail, ensure you're using an App Password, not your regular password
-3. Check that "Less secure app access" isn't blocking you (shouldn't be needed with App Passwords)
+3. SMTP emails may be delayed by Gmail - consider switching to Gmail API
 
 ### Solve timeout
 
@@ -208,7 +263,7 @@ The default timeout is 300 seconds (5 minutes). If solves consistently timeout:
    - Transfer recommendations per gameweek
    - Expected points ranges and grades
 
-4. **Email**: Sends both plain text and HTML formatted results to your email.
+4. **Email**: Sends both plain text and HTML formatted results via Gmail API (instant delivery) or SMTP fallback.
 
 ## License
 

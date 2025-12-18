@@ -19,3 +19,5 @@ chrome_profile/
 
 # Output files
 output/
+# Gmail API credentials (contains OAuth tokens)
+credentials/

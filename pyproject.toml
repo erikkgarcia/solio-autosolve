@@ -8,6 +8,9 @@ dependencies = [
     "playwright>=1.57.0",
     "beautifulsoup4>=4.12.0",
     "python-dotenv>=1.0.0",
+    "google-auth>=2.0.0",
+    "google-auth-oauthlib>=1.0.0",
+    "google-api-python-client>=2.0.0",
 ]
 
 [project.scripts]
@@ -16,6 +19,7 @@ solio-login = "solio_autosolve.login:main"
 solio-solve = "solio_autosolve.solve:main"
 solio-parse = "solio_autosolve.parser:main"
 solio-email = "solio_autosolve.email_sender:main"
+solio-gmail-setup = "solio_autosolve.gmail_api:main"
 
 [build-system]
 requires = ["hatchling"]

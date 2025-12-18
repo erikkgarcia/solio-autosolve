@@ -1,4 +1,9 @@
-"""Send optimization results via email."""
+"""Send optimization results via email.
+
+Supports two methods:
+1. Gmail API (preferred) - Faster, more reliable delivery
+2. SMTP (fallback) - Works without Gmail API setup
+"""
 
 import os
 import smtplib
@@ -64,22 +69,25 @@ def send_results_email(
     results: SolveResults,
     recipient: str | None = None,
     subject: str | None = None,
+    use_gmail_api: bool = True,
 ) -> None:
     """Send optimization results via email.
 
+    Uses Gmail API if configured, otherwise falls back to SMTP.
+
     Args:
         results: Parsed solve results to send.
-        recipient: Email recipient (defaults to sender address).
+        recipient: Email recipient (defaults to sender address from config).
         subject: Email subject (defaults to generated subject).
+        use_gmail_api: Whether to try Gmail API first (default: True).
 
     Raises:
         ValueError: If email configuration is missing.
-        smtplib.SMTPException: If email sending fails.
+        smtplib.SMTPException: If SMTP email sending fails.
     """
+    # Get recipient from config if not provided
     config = get_email_config()
-
-    sender = config["email_address"]
-    recipient = recipient or sender
+    recipient = recipient or config["email_address"]
 
     # Generate subject if not provided
     if not subject:
@@ -92,18 +100,59 @@ def send_results_email(
         else:
             subject = "Solio FPL Optimization Results"
 
+    # Prepare content
+    text_content = format_results_text(results)
+    html_content = format_results_html(results)
+
+    # Try Gmail API first if enabled
+    if use_gmail_api:
+        try:
+            from .gmail_api import is_gmail_api_authorized, send_email_gmail_api
+
+            if is_gmail_api_authorized():
+                send_email_gmail_api(
+                    to=recipient,
+                    subject=subject,
+                    text_content=text_content,
+                    html_content=html_content,
+                )
+                return
+            else:
+                print("Gmail API not authorized, falling back to SMTP...")
+        except ImportError:
+            print("Gmail API dependencies not installed, using SMTP...")
+        except Exception as e:
+            print(f"Gmail API failed ({e}), falling back to SMTP...")
+
+    # Fall back to SMTP
+    _send_via_smtp(config, recipient, subject, text_content, html_content)
+
+
+def _send_via_smtp(
+    config: EmailConfig,
+    recipient: str,
+    subject: str,
+    text_content: str,
+    html_content: str,
+) -> None:
+    """Send email via SMTP.
+
+    Args:
+        config: Email configuration with SMTP settings.
+        recipient: Email recipient.
+        subject: Email subject.
+        text_content: Plain text body.
+        html_content: HTML body.
+    """
+    sender = config["email_address"]
+
     # Create email message
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = recipient
 
-    # Plain text version
-    text_content = format_results_text(results)
     msg.attach(MIMEText(text_content, "plain"))
-
-    # HTML version
-    html_content = format_results_html(results)
     msg.attach(MIMEText(html_content, "html"))
 
     # Send email
@@ -112,7 +161,7 @@ def send_results_email(
         server.login(sender, config["email_password"])
         server.sendmail(sender, recipient, msg.as_string())
 
-    print(f"Email sent successfully to {recipient}")
+    print(f"Email sent successfully via SMTP to {recipient}")
 
 
 def format_results_html(results: SolveResults) -> str:
