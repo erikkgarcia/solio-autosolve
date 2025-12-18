@@ -7,6 +7,7 @@ Supports two methods:
 
 import os
 import smtplib
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import TypedDict
@@ -91,14 +92,13 @@ def send_results_email(
 
     # Generate subject if not provided
     if not subject:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         if results.gameweek_plans:
             first_gw = results.gameweek_plans[0].gameweek
             last_gw = results.gameweek_plans[-1].gameweek
-            subject = (
-                f"Solio FPL Results: {first_gw}-{last_gw} ({results.total_points} pts)"
-            )
+            subject = f"Solio FPL Results: {first_gw}-{last_gw} ({results.total_points} pts) - {timestamp}"
         else:
-            subject = "Solio FPL Optimization Results"
+            subject = f"Solio FPL Optimization Results - {timestamp}"
 
     # Prepare content
     text_content = format_results_text(results)
