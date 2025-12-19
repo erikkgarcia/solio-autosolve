@@ -13,7 +13,6 @@ import sys
 from dotenv import load_dotenv
 
 from .browser import create_browser_context
-from .config import SOLIO_URL
 from .email_sender import send_results_email
 from .login import ensure_logged_in
 from .parser import format_results_text, parse_results_file
@@ -64,12 +63,7 @@ def main() -> int:
         try:
             page = context.pages[0] if context.pages else context.new_page()
 
-            # Step 1: Navigate to Solio
-            print(f"Navigating to {SOLIO_URL}...")
-            page.goto(SOLIO_URL, wait_until="networkidle")
-
-            # Step 2: Login if needed
-            print("Checking login status...")
+            # Step 1: Login if needed (this also navigates to Solio)
             if not ensure_logged_in(page, context):
                 print("ERROR: Failed to log in")
                 return 1
@@ -84,7 +78,6 @@ def main() -> int:
                 return 1
 
             results_file = solve_results["output_file"]
-            print(f"Results saved to: {results_file}")
 
         finally:
             context.close()
