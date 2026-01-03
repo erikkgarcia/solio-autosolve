@@ -21,10 +21,13 @@ def create_browser_context(headless: bool = False) -> tuple[Playwright, BrowserC
 
     context = p.chromium.launch_persistent_context(
         user_data_dir=str(CHROME_PROFILE_DIR),
-        channel="chrome",  # Use installed Chrome, not Chromium
+        executable_path="/usr/bin/chromium",  # <-- use system Chromium on the Pi
         headless=headless,
         args=[
             "--disable-blink-features=AutomationControlled",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--window-size=1920,1080",
         ],
     )
 
