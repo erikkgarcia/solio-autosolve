@@ -131,9 +131,41 @@ uv run solio-email
 uv run solio-gmail-setup
 ```
 
-## Scheduled Runs (Windows Task Scheduler)
+## Scheduled Runs
 
-Set up automatic daily runs:
+### Linux (systemd timers)
+
+Set up automatic twice-daily runs on Linux/Raspberry Pi:
+
+```bash
+# Default times (10:00 AM and 6:00 PM)
+./scripts/setup_scheduled.sh
+
+# Custom times
+./scripts/setup_scheduled.sh --morning 08:00 --evening 20:00
+
+# Check timer status
+systemctl --user list-timers
+
+# View logs
+journalctl --user -u solio-autosolve.service -n 50
+
+# Run manually right now
+systemctl --user start solio-autosolve.service
+
+# Or just use the simple command
+uv run solio
+
+# Disable timers
+systemctl --user stop solio-autosolve-morning.timer solio-autosolve-evening.timer
+systemctl --user disable solio-autosolve-morning.timer solio-autosolve-evening.timer
+```
+
+**Note**: Timers will run even when you're not logged in (uses systemd lingering).
+
+### Windows (Task Scheduler)
+
+Set up automatic daily runs on Windows:
 
 ```powershell
 # Daily at 10:00 AM
@@ -166,8 +198,10 @@ solio-autosolve/
 │   ├── parser.py        # Results HTML parsing
 │   └── solve.py         # Optimization solve logic
 ├── scripts/
-│   ├── run_scheduled.ps1       # PowerShell runner for Task Scheduler
-│   ├── run_scheduled.bat       # Batch file alternative
+│   ├── run_scheduled.sh         # Bash runner for systemd/cron (Linux)
+│   ├── setup_scheduled.sh       # Creates systemd timers (Linux)
+│   ├── run_scheduled.ps1        # PowerShell runner for Task Scheduler (Windows)
+│   ├── run_scheduled.bat        # Batch file alternative (Windows)
 │   └── setup_scheduled_task.ps1 # Creates Windows scheduled task
 ├── credentials/         # Gmail API credentials (gitignored)
 ├── chrome_profile/      # Persistent Chrome profile (gitignored)
@@ -211,7 +245,12 @@ The scripts use relative paths, so no changes are needed. Just clone the repo an
 
 ### 3. Schedule Time
 
-When setting up the scheduled task:
+**Linux:**
+```bash
+./scripts/setup_scheduled.sh --morning 08:00 --evening 20:00
+```
+
+**Windows:**
 ```powershell
 .\scripts\setup_scheduled_task.ps1 -Time "08:00"  # Your preferred time
 ```
