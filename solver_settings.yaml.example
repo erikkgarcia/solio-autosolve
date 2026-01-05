@@ -1,0 +1,15 @@
+# Solio Solver Settings Configuration
+# 
+# This file defines solver parameters that will be applied before running optimization.
+# Only includes settings that have been tested and confirmed to work with Solio's UI.
+
+# Solver timeout in seconds (how long to wait for optimization to complete)
+# Default: 300 (5 minutes)
+# Note: This is a local timeout for our script, not sent to Solio
+timeout: 300
+
+# Horizon: Number of gameweeks to optimize ahead (1-10)
+# Lower values = faster solves, less forward planning
+# Higher values = slower solves, better long-term planning
+# Default: 10 gameweeks
+horizon_weeks: 10

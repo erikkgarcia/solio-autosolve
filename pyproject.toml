@@ -11,6 +11,7 @@ dependencies = [
     "google-auth>=2.0.0",
     "google-auth-oauthlib>=1.0.0",
     "google-api-python-client>=2.0.0",
+    "pyyaml>=6.0.0",
 ]
 
 [project.scripts]
@@ -20,6 +21,8 @@ solio-solve = "solio_autosolve.solve:main"
 solio-parse = "solio_autosolve.parser:main"
 solio-email = "solio_autosolve.email_sender:main"
 solio-gmail-setup = "solio_autosolve.gmail_api:main"
+solio-settings = "solio_autosolve.settings:main"
+solio-explore = "solio_autosolve.explore_settings:main"
 
 [build-system]
 requires = ["hatchling"]

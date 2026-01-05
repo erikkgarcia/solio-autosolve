@@ -129,6 +129,37 @@ uv run solio-email
 
 # Set up/test Gmail API
 uv run solio-gmail-setup
+
+# Manage solver settings
+uv run solio-settings  # Creates default settings file if it doesn't exist
+```
+
+## Solver Settings
+
+You can configure solver parameters in `solver_settings.yaml`:
+
+```yaml
+timeout: 300        # Script timeout in seconds (default: 300)
+horizon_weeks: 10   # Gameweeks to plan ahead: 1-10 (default: 10)
+```
+
+**Current Capabilities:**
+- ✅ **Horizon (1-10 GWs)**: Number of gameweeks to optimize ahead. Lower values = faster solves.
+- ⏳ **Future**: Transfers, Risk Preference, Player Locks (discovered but not yet implemented)
+
+Settings are automatically applied when running with `--apply-settings`:
+
+```bash
+solio-solve --apply-settings
+```
+
+**Example:** Set horizon to 1 gameweek for quick testing:
+```bash
+# Edit solver_settings.yaml
+horizon_weeks: 1
+
+# Run solve (completes in ~5s instead of ~70s)
+solio-solve --apply-settings
 ```
 
 ## Scheduled Runs
