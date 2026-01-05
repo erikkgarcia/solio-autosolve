@@ -6,6 +6,8 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from .settings import load_solver_settings
+
 
 @dataclass
 class Transfer:
@@ -212,6 +214,8 @@ def format_results_text(results: SolveResults) -> str:
     Returns:
         Formatted text string.
     """
+    settings = load_solver_settings(verbose=False)
+
     lines = []
     lines.append("=" * 50)
     lines.append("SOLIO OPTIMIZATION RESULTS")
@@ -219,7 +223,9 @@ def format_results_text(results: SolveResults) -> str:
     lines.append("")
     lines.append(f"Total Projected Points: {results.total_points}")
     lines.append(f"Total Transfers: {results.total_transfers}")
-    lines.append(f"Final Bank: {results.final_bank}m")
+    #lines.append(f"Final Bank: {results.final_bank}m")
+    lines.append(f"Horizon: {settings.get('horizon_weeks', 'N/A')} GWs")
+    lines.append(f"Decision Disruption: {settings.get('decision_disruption_probability', 'N/A'):.0%}")
     lines.append("")
 
     for plan in results.gameweek_plans:
@@ -235,7 +241,7 @@ def format_results_text(results: SolveResults) -> str:
             lines.append("  No transfers this week")
         lines.append("")
 
-    lines.append("=" * 50)
+  #  lines.append("-" * 50)
     return "\n".join(lines)
 
 
