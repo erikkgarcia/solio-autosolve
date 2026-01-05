@@ -1,6 +1,8 @@
 """Optimization functionality for Solio FPL."""
 
+import re
 import time
+from datetime import datetime
 from typing import Any
 
 from playwright.sync_api import Page
@@ -39,13 +41,18 @@ def apply_solver_settings(page: Page, settings: dict[str, Any]) -> bool:
     """
     print("\nApplying solver settings...")
     
+    horizon_success = False
+    decision_success = False
+    
     try:
         # Apply horizon setting (number of gameweeks to plan ahead)
         horizon_weeks = settings.get('horizon_weeks', 10)
         print(f"Setting horizon to {horizon_weeks} gameweeks...")
         
         # Click the horizon button to open the dialog
-        horizon_button = page.locator('button:has-text("GWs")')
+        # Button shows current horizon like "1 GW", "10 GWs", etc.
+        # Use regex to match both singular "GW" and plural "GWs"
+        horizon_button = page.get_by_role("button").filter(has_text=re.compile(r"\d+\s+GWs?"))
         if horizon_button.count() > 0:
             horizon_button.click()
             time.sleep(0.5)
@@ -87,40 +94,88 @@ def apply_solver_settings(page: Page, settings: dict[str, Any]) -> bool:
                     # Verify the change
                     new_val = int(slider.get_attribute("aria-valuenow") or str(current_val))
                     print(f"  Set horizon to {new_val} GWs")
-                    
-                    # Close dialog
-                    page.keyboard.press("Escape")
-                    time.sleep(0.5)
-                    
-                    return new_val == target_val
+                    horizon_success = (new_val == target_val)
                 else:
                     print(f"  Horizon already at {target_val} GWs")
-                    page.keyboard.press("Escape")
-                    time.sleep(0.5)
-                    return True
+                    horizon_success = True
+                    
+                # Close dialog
+                page.keyboard.press("Escape")
+                time.sleep(0.5)
             else:
                 print("  Horizon slider not found in dialog")
                 page.keyboard.press("Escape")
-                return False
         else:
             print("  Horizon button not found")
-            return False
+        
+        # Apply decision disruption probability setting
+        decision_prob = settings.get('decision_disruption_probability', 0.5)
+        print(f"\nSetting decision disruption probability to {decision_prob:.0%}...")
+        
+        # Open Settings dialog via settings wheel button
+        settings_wheel_xpath = '/html/body/div[1]/div/main/div[1]/div/div[4]/button'
+        settings_wheel = page.locator(f'xpath={settings_wheel_xpath}')
+        
+        if settings_wheel.count() > 0:
+            settings_wheel.click()
+            time.sleep(0.5)
+            
+            # Click "Settings" button in the opened dialog
+            settings_button = page.get_by_role('button', name='Settings')
+            if settings_button.is_visible():
+                settings_button.click()
+                time.sleep(0.5)
+                
+                # Click "Optimisation" tab
+                optimisation_tab = page.locator('button[role="tab"]:has-text("Optimisation")')
+                if optimisation_tab.count() > 0:
+                    optimisation_tab.click()
+                    time.sleep(0.5)
+                    
+                    # Map probability to preset button
+                    presets = {
+                        0.0: 'Clear Skies',
+                        0.25: 'Breezy',
+                        0.5: 'Cloudy',
+                        0.75: 'Foggy',
+                        1.0: 'Storm'
+                    }
+                    
+                    # Find closest preset
+                    closest_value = min(presets.keys(), key=lambda x: abs(x - decision_prob))
+                    preset_name = presets[closest_value]
+                    
+                    print(f"  Clicking '{preset_name}' preset ({closest_value:.0%})...")
+                    
+                    # Click the preset button
+                    preset_button = page.locator(f'button:has-text("{preset_name}")')
+                    if preset_button.count() > 0:
+                        preset_button.click()
+                        time.sleep(0.3)
+                        print(f"  Set decision disruption to {closest_value:.0%}")
+                        decision_success = True
+                    else:
+                        print(f"  Preset button '{preset_name}' not found")
+                        
+                    # Close settings dialog
+                    page.keyboard.press("Escape")
+                    time.sleep(0.5)
+                else:
+                    print("  Optimisation tab not found")
+                    page.keyboard.press("Escape")
+            else:
+                print("  Settings button not found in dialog")
+                page.keyboard.press("Escape")
+        else:
+            print("  Settings wheel button not found")
+        
+        # Return True if at least one setting was applied successfully
+        return horizon_success or decision_success
         
     except Exception as e:
         print(f"Error applying settings: {e}")
         import traceback
         traceback.print_exc()
-        return False
-        
-        # For now, just log what settings we would apply
-        if "settings" in settings:
-            for key, value in settings["settings"].items():
-                print(f"  {key}: {value}")
-        
-        return True
-    
-    except Exception as e:
-        print(f"Error applying settings: {e}")
         return False
 
 

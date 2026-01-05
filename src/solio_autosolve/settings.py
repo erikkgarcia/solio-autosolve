@@ -41,6 +41,7 @@ def get_default_settings() -> dict[str, Any]:
     return {
         "timeout": 300,
         "horizon_weeks": 10,
+        "decision_disruption_probability": 0.5,
     }
 
 
@@ -70,9 +71,16 @@ timeout: {timeout}
 # Higher values = slower solves, better long-term planning
 # Default: 10 gameweeks
 horizon_weeks: {horizon_weeks}
+
+# Decision Disruption Probability (likelihood of needing to deviate from plan)
+# Default: 0.5 (50%)
+# Range: 0.0-1.0 (higher = more transfer flexibility, rolls more transfers)
+# Presets: 0.0 (Clear Skies), 0.25 (Breezy), 0.5 (Cloudy), 0.75 (Foggy), 1.0 (Storm)
+decision_disruption_probability: {decision_disruption_probability}
 """.format(
         timeout=default_settings["timeout"],
         horizon_weeks=default_settings["horizon_weeks"],
+        decision_disruption_probability=default_settings["decision_disruption_probability"],
     )
     
     with open(settings_file, "w", encoding="utf-8") as f:

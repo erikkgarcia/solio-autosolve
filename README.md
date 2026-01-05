@@ -139,12 +139,15 @@ uv run solio-settings  # Creates default settings file if it doesn't exist
 You can configure solver parameters in `solver_settings.yaml`:
 
 ```yaml
-timeout: 300        # Script timeout in seconds (default: 300)
-horizon_weeks: 10   # Gameweeks to plan ahead: 1-10 (default: 10)
+timeout: 300                          # Script timeout in seconds (default: 300)
+horizon_weeks: 10                     # Gameweeks to plan ahead: 1-10 (default: 10)
+decision_disruption_probability: 0.5  # Transfer flexibility: 0.0-1.0 (default: 0.5)
 ```
 
 **Current Capabilities:**
 - ✅ **Horizon (1-10 GWs)**: Number of gameweeks to optimize ahead. Lower values = faster solves.
+- ✅ **Decision Disruption (0.0-1.0)**: Likelihood of deviating from plan due to injuries/opportunities. Higher values incentivize rolling more transfers for flexibility.
+  - Presets: 0.0 (Clear Skies), 0.25 (Breezy), 0.5 (Cloudy), 0.75 (Foggy), 1.0 (Storm)
 - ⏳ **Future**: Transfers, Risk Preference, Player Locks (discovered but not yet implemented)
 
 Settings are automatically applied when running with `--apply-settings`:
@@ -153,12 +156,33 @@ Settings are automatically applied when running with `--apply-settings`:
 solio-solve --apply-settings
 ```
 
-**Example:** Set horizon to 1 gameweek for quick testing:
+**Example 1:** Set horizon to 1 gameweek for quick testing:
 ```bash
 # Edit solver_settings.yaml
 horizon_weeks: 1
+decision_disruption_probability: 0.5
 
 # Run solve (completes in ~5s instead of ~70s)
+solio-solve --apply-settings
+```
+
+**Example 2:** Conservative strategy (low disruption expectation):
+```bash
+# Edit solver_settings.yaml
+horizon_weeks: 10
+decision_disruption_probability: 0.0  # Clear Skies
+
+# Run solve with minimal transfer rolling
+solio-solve --apply-settings
+```
+
+**Example 3:** Aggressive strategy (high disruption expectation):
+```bash
+# Edit solver_settings.yaml
+horizon_weeks: 10
+decision_disruption_probability: 1.0  # Storm
+
+# Run solve with maximum transfer flexibility
 solio-solve --apply-settings
 ```
 
