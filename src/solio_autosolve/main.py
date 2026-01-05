@@ -46,6 +46,18 @@ def main() -> int:
         action="store_true",
         help="Run browser in headless mode (no visible window)",
     )
+    parser.add_argument(
+        "--horizon",
+        type=int,
+        metavar="WEEKS",
+        help="Override horizon setting (1-10 gameweeks)",
+    )
+    parser.add_argument(
+        "--ddp",
+        type=float,
+        metavar="PROB",
+        help="Override decision disruption probability (0.0-1.0)",
+    )
     args = parser.parse_args()
 
     results_file = None
@@ -71,7 +83,15 @@ def main() -> int:
             # Step 3: Run solve
             print()
             print("Starting optimization solve...")
-            solve_results = run_solve_on_page(page)
+            
+            # Prepare settings overrides from CLI args
+            settings_overrides = {}
+            if args.horizon is not None:
+                settings_overrides['horizon_weeks'] = args.horizon
+            if args.ddp is not None:
+                settings_overrides['decision_disruption_probability'] = args.ddp
+            
+            solve_results = run_solve_on_page(page, settings_overrides=settings_overrides)
 
             if not solve_results or "output_file" not in solve_results:
                 print("ERROR: Solve failed or no results captured")

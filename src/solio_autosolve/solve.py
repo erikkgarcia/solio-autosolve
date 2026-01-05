@@ -203,7 +203,12 @@ def wait_for_solve_completion(page: Page, timeout_seconds: int = 300) -> bool:
     return False
 
 
-def run_solve_on_page(page: Page, timeout_seconds: int = 300, apply_settings: bool = True) -> dict | None:
+def run_solve_on_page(
+    page: Page,
+    timeout_seconds: int = 300,
+    apply_settings: bool = True,
+    settings_overrides: dict | None = None
+) -> dict | None:
     """
     Run the optimization solve on an existing page.
 
@@ -211,6 +216,7 @@ def run_solve_on_page(page: Page, timeout_seconds: int = 300, apply_settings: bo
         page: Playwright page that is already logged in to Solio.
         timeout_seconds: Maximum time to wait for solve completion.
         apply_settings: Whether to apply settings from solver_settings.yaml
+        settings_overrides: Optional dict to override specific settings from CLI
 
     Returns:
         Results dictionary with output_file path, or None if failed.
@@ -222,6 +228,15 @@ def run_solve_on_page(page: Page, timeout_seconds: int = 300, apply_settings: bo
     # Apply settings if requested
     if apply_settings:
         settings = load_solver_settings()
+        
+        # Override with CLI arguments if provided
+        if settings_overrides:
+            settings.update(settings_overrides)
+            if settings_overrides:
+                print("CLI overrides:")
+                for key, value in settings_overrides.items():
+                    print(f"  {key}: {value}")
+        
         apply_solver_settings(page, settings)
         # Use timeout from settings
         timeout_seconds = settings.get("timeout", timeout_seconds)
