@@ -12,7 +12,7 @@ timeout: 300
 # Lower values = faster solves, less forward planning
 # Higher values = slower solves, better long-term planning
 # Default: 10 gameweeks
-horizon_weeks: 2
+horizon_weeks: 10
 
 # Decision Disruption Probability (likelihood of needing to deviate from plan)
 # Default: 0.5 (50%)
