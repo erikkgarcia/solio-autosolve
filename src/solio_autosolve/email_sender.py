@@ -103,7 +103,7 @@ def send_results_email(
 
     # Prepare content
     settings = load_solver_settings(verbose=False)
-    text_content = format_results_text(results)
+    text_content = format_results_text(results, settings=settings)
     html_content = format_results_html(results, settings)
 
     # Try Gmail API first if enabled

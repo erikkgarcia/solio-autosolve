@@ -226,6 +226,7 @@ def run_solve_on_page(
     time.sleep(2)
 
     # Apply settings if requested
+    actual_settings = None
     if apply_settings:
         settings = load_solver_settings()
         
@@ -240,6 +241,7 @@ def run_solve_on_page(
         apply_solver_settings(page, settings)
         # Use timeout from settings
         timeout_seconds = settings.get("timeout", timeout_seconds)
+        actual_settings = settings
 
     # Click the Optimise button
     if not click_optimise_button(page):
@@ -253,6 +255,8 @@ def run_solve_on_page(
 
     # Fetch and return results
     results = fetch_results(page)
+    if actual_settings:
+        results["settings"] = actual_settings
     return results
 
 
@@ -267,6 +271,7 @@ def fetch_results(page: Page) -> dict:
         "timestamp": datetime.now().isoformat(),
         "transfers": [],
         "html": "",
+        "settings": None,  # Will be set by run_solve_on_page
     }
 
     # Wait for page to be stable

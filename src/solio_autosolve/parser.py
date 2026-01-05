@@ -205,16 +205,18 @@ def parse_results_file(file_path: Path) -> SolveResults:
     return parse_results_html(html_content)
 
 
-def format_results_text(results: SolveResults) -> str:
+def format_results_text(results: SolveResults, settings: dict | None = None) -> str:
     """Format results as human-readable text for email/display.
 
     Args:
         results: Parsed solve results.
+        settings: Optional settings dict with actual values used. If None, loads from file.
 
     Returns:
         Formatted text string.
     """
-    settings = load_solver_settings(verbose=False)
+    if settings is None:
+        settings = load_solver_settings(verbose=False)
 
     lines = []
     lines.append("=" * 50)

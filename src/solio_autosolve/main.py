@@ -109,6 +109,11 @@ def main() -> int:
     print()
     print("Parsing results...")
 
+    # Get actual settings used (from solve_results if available)
+    actual_settings = None
+    if results_file and 'settings' in (solve_results or {}):
+        actual_settings = solve_results.get('settings')
+    
     if results_file:
         results = parse_results_file(results_file)
     else:
@@ -125,7 +130,7 @@ def main() -> int:
         results = parse_results_file(latest_file)
 
     print()
-    print(format_results_text(results))
+    print(format_results_text(results, settings=actual_settings))
 
     # Step 5: Send email
     if not args.no_email:
