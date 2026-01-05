@@ -431,7 +431,7 @@ wheels = [
 ]
 
 [[package]]
-name = "solio-autosolve"
+name = "solio-cli"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

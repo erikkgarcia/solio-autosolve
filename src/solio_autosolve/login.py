@@ -136,7 +136,7 @@ def ensure_logged_in(page: Page, context: BrowserContext) -> bool:
 
 def main():
     """Run login and capture the page HTML after logging in."""
-    print("Starting Solio AutoSolve - Login...")
+    print("Starting Solio CLI - Login...")
 
     p, context = create_browser_context()
     page = context.new_page()

@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Solio AutoSolve - Scheduled Task Runner (PowerShell version)
+    Solio CLI - Scheduled Task Runner (PowerShell version)
     
 .DESCRIPTION
     This script is designed to be run by Windows Task Scheduler.
-    It runs the Solio automation in headless mode and logs the results.
+    It runs the Solio automation (headless by default) and logs the results.
     
 .NOTES
     To create a scheduled task, run setup_scheduled_task.ps1 as Administrator.
@@ -40,7 +40,7 @@ try {
     Set-Location $ProjectDir
     
     # Run the automation
-    $Output = & uv run solio --headless 2>&1
+    $Output = & uv run solio 2>&1
     $ExitCode = $LASTEXITCODE
     
     # Log output

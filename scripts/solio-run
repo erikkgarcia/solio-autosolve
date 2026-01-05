@@ -1,5 +1,5 @@
 #!/bin/bash
 # Simple wrapper to run solio from anywhere
 
-cd /srv/workspaces/solio-autosolve || exit 1
+cd /srv/workspaces/solio-cli || exit 1
 uv run solio "$@"

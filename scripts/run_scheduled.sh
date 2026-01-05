@@ -1,5 +1,5 @@
 #!/bin/bash
-# Solio AutoSolve - Scheduled Run Script for Linux
+# Solio CLI - Scheduled Run Script for Linux
 # This script is designed to be called by systemd timers or cron
 
 # Get the directory where this script is located
@@ -19,16 +19,16 @@ cd "$PROJECT_DIR" || exit 1
 
 # Log start time
 echo "==================================" | tee -a "$LOG_FILE"
-echo "Solio AutoSolve - Scheduled Run" | tee -a "$LOG_FILE"
+echo "Solio CLI - Scheduled Run" | tee -a "$LOG_FILE"
 echo "Started at: $(date)" | tee -a "$LOG_FILE"
 echo "==================================" | tee -a "$LOG_FILE"
 echo "" | tee -a "$LOG_FILE"
 
-# Run the automation in headless mode
-echo "Running: uv run solio --headless" | tee -a "$LOG_FILE"
+# Run the automation (headless by default)
+echo "Running: uv run solio" | tee -a "$LOG_FILE"
 echo "" | tee -a "$LOG_FILE"
 
-uv run solio --headless 2>&1 | tee -a "$LOG_FILE"
+uv run solio 2>&1 | tee -a "$LOG_FILE"
 EXIT_CODE=${PIPESTATUS[0]}
 
 echo "" | tee -a "$LOG_FILE"

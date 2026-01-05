@@ -1,5 +1,5 @@
 #!/bin/bash
-# Solio AutoSolve - Linux Scheduler Setup Script
+# Solio CLI - Linux Scheduler Setup Script
 # Sets up systemd timers to run the automation twice daily
 
 set -e
@@ -52,7 +52,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo -e "${BLUE}==================================${NC}"
-echo -e "${BLUE}Solio AutoSolve - Linux Scheduler${NC}"
+echo -e "${BLUE}Solio CLI - Linux Scheduler${NC}"
 echo -e "${BLUE}==================================${NC}"
 echo ""
 echo -e "Project directory: ${GREEN}$PROJECT_DIR${NC}"
@@ -69,10 +69,10 @@ SYSTEMD_DIR="$HOME/.config/systemd/user"
 mkdir -p "$SYSTEMD_DIR"
 
 # Create the service file
-SERVICE_FILE="$SYSTEMD_DIR/solio-autosolve.service"
+SERVICE_FILE="$SYSTEMD_DIR/solio-cli.service"
 cat > "$SERVICE_FILE" << EOF
 [Unit]
-Description=Solio AutoSolve - FPL Optimization
+Description=Solio CLI - FPL Optimization
 After=network-online.target
 Wants=network-online.target
 
@@ -90,15 +90,15 @@ EOF
 echo -e "${GREEN}✓${NC} Created systemd service: $SERVICE_FILE"
 
 # Create timer for morning run
-MORNING_TIMER="$SYSTEMD_DIR/solio-autosolve-morning.timer"
+MORNING_TIMER="$SYSTEMD_DIR/solio-cli-morning.timer"
 cat > "$MORNING_TIMER" << EOF
 [Unit]
-Description=Solio AutoSolve - Morning Run
+Description=Solio CLI - Morning Run
 
 [Timer]
 OnCalendar=*-*-* $MORNING_TIME:00
 Persistent=true
-Unit=solio-autosolve.service
+Unit=solio-cli.service
 
 [Install]
 WantedBy=timers.target
@@ -107,15 +107,15 @@ EOF
 echo -e "${GREEN}✓${NC} Created morning timer: $MORNING_TIMER"
 
 # Create timer for evening run
-EVENING_TIMER="$SYSTEMD_DIR/solio-autosolve-evening.timer"
+EVENING_TIMER="$SYSTEMD_DIR/solio-cli-evening.timer"
 cat > "$EVENING_TIMER" << EOF
 [Unit]
-Description=Solio AutoSolve - Evening Run
+Description=Solio CLI - Evening Run
 
 [Timer]
 OnCalendar=*-*-* $EVENING_TIME:00
 Persistent=true
-Unit=solio-autosolve.service
+Unit=solio-cli.service
 
 [Install]
 WantedBy=timers.target
@@ -128,10 +128,10 @@ systemctl --user daemon-reload
 echo -e "${GREEN}✓${NC} Reloaded systemd daemon"
 
 # Enable and start the timers
-systemctl --user enable solio-autosolve-morning.timer
-systemctl --user enable solio-autosolve-evening.timer
-systemctl --user start solio-autosolve-morning.timer
-systemctl --user start solio-autosolve-evening.timer
+systemctl --user enable solio-cli-morning.timer
+systemctl --user enable solio-cli-evening.timer
+systemctl --user start solio-cli-morning.timer
+systemctl --user start solio-cli-evening.timer
 
 echo -e "${GREEN}✓${NC} Enabled and started timers"
 echo ""
@@ -154,17 +154,17 @@ echo -e "  ${YELLOW}# Check timer status${NC}"
 echo "  systemctl --user list-timers"
 echo ""
 echo -e "  ${YELLOW}# View recent logs${NC}"
-echo "  journalctl --user -u solio-autosolve.service -n 50"
+echo "  journalctl --user -u solio-cli.service -n 50"
 echo ""
 echo -e "  ${YELLOW}# Run manually right now${NC}"
-echo "  systemctl --user start solio-autosolve.service"
+echo "  systemctl --user start solio-cli.service"
 echo ""
 echo -e "  ${YELLOW}# Or just use the CLI command${NC}"
 echo "  uv run solio"
 echo ""
 echo -e "  ${YELLOW}# Disable timers${NC}"
-echo "  systemctl --user stop solio-autosolve-morning.timer"
-echo "  systemctl --user stop solio-autosolve-evening.timer"
-echo "  systemctl --user disable solio-autosolve-morning.timer"
-echo "  systemctl --user disable solio-autosolve-evening.timer"
+echo "  systemctl --user stop solio-cli-morning.timer"
+echo "  systemctl --user stop solio-cli-evening.timer"
+echo "  systemctl --user disable solio-cli-morning.timer"
+echo "  systemctl --user disable solio-cli-evening.timer"
 echo ""

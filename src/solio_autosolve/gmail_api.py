@@ -217,9 +217,9 @@ def main() -> None:
         try:
             send_email_gmail_api(
                 to=email_address,
-                subject="Solio AutoSolve - Gmail API Test",
-                text_content="This is a test email from Solio AutoSolve using the Gmail API.",
-                html_content="<h1>Gmail API Test</h1><p>This is a test email from <strong>Solio AutoSolve</strong> using the Gmail API.</p>",
+                subject="Solio CLI - Gmail API Test",
+                text_content="This is a test email from Solio CLI using the Gmail API.",
+                html_content="<h1>Gmail API Test</h1><p>This is a test email from <strong>Solio CLI</strong> using the Gmail API.</p>",
             )
         except Exception as e:
             print(f"Failed to send test email: {e}")

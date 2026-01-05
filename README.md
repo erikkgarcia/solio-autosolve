@@ -1,15 +1,16 @@
-# Solio AutoSolve
+# Solio CLI
 
-Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](https://fpl.solioanalytics.com/). This tool automatically logs in, runs optimization solves, parses the results, and sends you an email summary of recommended transfers.
+CLI tool for FPL (Fantasy Premier League) optimization using [Solio Analytics](https://fpl.solioanalytics.com/). Automatically logs in, runs optimization solves with customizable settings, parses results, and sends email summaries of recommended transfers.
 
 ## Features
 
+- **CLI Arguments**: Override solver settings directly from command line
 - **Automated Login**: Uses a persistent Chrome profile to maintain Google OAuth sessions
-- **Optimization Solve**: Clicks the "Optimise" button and waits for results
+- **Optimization Solve**: Configurable horizon and decision disruption settings
 - **Results Parsing**: Extracts transfer recommendations, projected points, and gameweek plans
 - **Email Notifications**: Sends formatted HTML emails via Gmail API (fast, reliable) or SMTP fallback
-- **Scheduled Runs**: Can be configured to run automatically via Windows Task Scheduler
-- **Headless Mode**: Runs without a visible browser window for background automation
+- **Scheduled Runs**: Can be configured to run automatically via systemd timers (Linux) or Task Scheduler (Windows)
+- **Headless by Default**: Runs without a visible browser window (use --gui to show browser)
 
 ## Prerequisites
 
@@ -23,8 +24,8 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/solio-autosolve.git
-   cd solio-autosolve
+   git clone https://github.com/yourusername/solio-cli.git
+   cd solio-cli
    ```
 
 2. **Install dependencies**:
@@ -51,7 +52,7 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
    
    a. Go to [Google Cloud Console](https://console.cloud.google.com/)
    
-   b. Create a new project (e.g., "Solio AutoSolve")
+   b. Create a new project (e.g., "Solio CLI")
    
    c. Enable the Gmail API:
       - Search for "Gmail API" → Click "Enable"
@@ -99,11 +100,14 @@ Automated FPL (Fantasy Premier League) optimization using [Solio Analytics](http
 ### Full Automation (Login + Solve + Email)
 
 ```bash
-# With visible browser
+# Default (headless mode)
 uv run solio
 
-# Headless mode (no browser window)
-uv run solio --headless
+# With visible browser
+uv run solio --gui
+
+# Override solver settings via CLI
+uv run solio --horizon 5 --ddp 0.25
 
 # Skip email (just solve and display results)
 uv run solio --no-email
@@ -187,17 +191,17 @@ Set up automatic twice-daily runs on Linux/Raspberry Pi:
 systemctl --user list-timers
 
 # View logs
-journalctl --user -u solio-autosolve.service -n 50
+journalctl --user -u solio-cli.service -n 50
 
 # Run manually right now
-systemctl --user start solio-autosolve.service
+systemctl --user start solio-cli.service
 
 # Or just use the simple command
 uv run solio
 
 # Disable timers
-systemctl --user stop solio-autosolve-morning.timer solio-autosolve-evening.timer
-systemctl --user disable solio-autosolve-morning.timer solio-autosolve-evening.timer
+systemctl --user stop solio-cli-morning.timer solio-cli-evening.timer
+systemctl --user disable solio-cli-morning.timer solio-cli-evening.timer
 ```
 
 **Note**: Timers will run even when you're not logged in (uses systemd lingering).
@@ -225,7 +229,7 @@ Unregister-ScheduledTask -TaskName "Solio FPL AutoSolve"
 ## Project Structure
 
 ```
-solio-autosolve/
+solio-cli/
 ├── src/solio_autosolve/
 │   ├── __init__.py
 │   ├── browser.py       # Browser context management
@@ -233,9 +237,10 @@ solio-autosolve/
 │   ├── email_sender.py  # Email functionality (Gmail API + SMTP fallback)
 │   ├── gmail_api.py     # Gmail API integration
 │   ├── login.py         # Login and authentication
-│   ├── main.py          # Main orchestrator
+│   ├── main.py          # Main orchestrator with CLI argument parsing
 │   ├── parser.py        # Results HTML parsing
-│   └── solve.py         # Optimization solve logic
+│   ├── settings.py      # Solver settings management
+│   └── solve.py         # Optimization solve logic with settings application
 ├── scripts/
 │   ├── run_scheduled.sh         # Bash runner for systemd/cron (Linux)
 │   ├── setup_scheduled.sh       # Creates systemd timers (Linux)

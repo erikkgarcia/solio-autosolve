@@ -8,9 +8,12 @@ import yaml
 from .config import PROJECT_ROOT
 
 
-def load_solver_settings() -> dict[str, Any]:
+def load_solver_settings(verbose: bool = True) -> dict[str, Any]:
     """
     Load solver settings from solver_settings.yaml.
+    
+    Args:
+        verbose: If True, print status messages about loading settings.
     
     Returns:
         Dictionary containing solver configuration.
@@ -19,20 +22,23 @@ def load_solver_settings() -> dict[str, Any]:
     settings_file = PROJECT_ROOT / "solver_settings.yaml"
     
     if not settings_file.exists():
-        print(f"Settings file not found: {settings_file}")
-        print("Using default settings")
+        if verbose:
+            print(f"Settings file not found: {settings_file}")
+            print("Using default settings")
         return get_default_settings()
     
     try:
         with open(settings_file, "r", encoding="utf-8") as f:
             settings = yaml.safe_load(f)
         
-        print(f"Loaded settings from: {settings_file}")
+        if verbose:
+            print(f"Loaded settings from: {settings_file}")
         return settings or get_default_settings()
     
     except Exception as e:
-        print(f"Error loading settings: {e}")
-        print("Using default settings")
+        if verbose:
+            print(f"Error loading settings: {e}")
+            print("Using default settings")
         return get_default_settings()
 
 

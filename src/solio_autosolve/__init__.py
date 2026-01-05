@@ -1,1 +1,1 @@
-# Solio AutoSolve - Automated FPL optimization tool
+# Solio CLI - FPL optimization tool

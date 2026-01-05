@@ -42,20 +42,20 @@ def main() -> int:
         help="Skip solve (useful for testing email with existing results)",
     )
     parser.add_argument(
-        "--headless",
+        "--gui",
         action="store_true",
-        help="Run browser in headless mode (no visible window)",
+        help="Run browser with visible window (default is headless)",
     )
     parser.add_argument(
         "--horizon",
         type=int,
-        metavar="WEEKS",
+        metavar="weeks",
         help="Override horizon setting (1-10 gameweeks)",
     )
     parser.add_argument(
         "--ddp",
         type=float,
-        metavar="PROB",
+        metavar="probability",
         help="Override decision disruption probability (0.0-1.0)",
     )
     args = parser.parse_args()
@@ -70,7 +70,8 @@ def main() -> int:
 
         # Create browser context
         print("Starting browser...")
-        playwright, context = create_browser_context(headless=args.headless)
+        # Default to headless unless --gui flag is used
+        playwright, context = create_browser_context(headless=not args.gui)
 
         try:
             page = context.pages[0] if context.pages else context.new_page()

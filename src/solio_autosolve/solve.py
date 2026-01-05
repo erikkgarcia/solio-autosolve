@@ -311,7 +311,7 @@ def run_solve() -> dict | None:
     Run the full optimization solve process.
     Returns the results dictionary or None if failed.
     """
-    print("Starting Solio AutoSolve - Optimization...")
+    print("Starting Solio CLI - Optimization...")
 
     p, context = create_browser_context(headless=True)
     page = context.new_page()

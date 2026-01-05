@@ -1,7 +1,7 @@
 [project]
-name = "solio-autosolve"
+name = "solio-cli"
 version = "0.1.0"
-description = "Automated FPL optimization using Solio Analytics"
+description = "CLI tool for FPL optimization using Solio Analytics"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
