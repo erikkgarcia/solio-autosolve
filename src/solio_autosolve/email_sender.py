@@ -15,6 +15,7 @@ from typing import TypedDict
 from dotenv import load_dotenv
 
 from .parser import SolveResults, format_results_text, parse_results_file
+from .settings import load_solver_settings
 
 # Load environment variables from .env file
 load_dotenv()
@@ -101,8 +102,9 @@ def send_results_email(
             subject = f"Solio FPL Optimization Results - {timestamp}"
 
     # Prepare content
+    settings = load_solver_settings()
     text_content = format_results_text(results)
-    html_content = format_results_html(results)
+    html_content = format_results_html(results, settings)
 
     # Try Gmail API first if enabled
     if use_gmail_api:
@@ -164,11 +166,12 @@ def _send_via_smtp(
     print(f"Email sent successfully via SMTP to {recipient}")
 
 
-def format_results_html(results: SolveResults) -> str:
+def format_results_html(results: SolveResults, settings: dict | None = None) -> str:
     """Format results as HTML for email.
 
     Args:
         results: Parsed solve results.
+        settings: Solver settings used for optimization (optional).
 
     Returns:
         HTML formatted string.
@@ -200,7 +203,8 @@ def format_results_html(results: SolveResults) -> str:
             <div class="summary">
                 <p><strong>Total Projected Points:</strong> {results.total_points}</p>
                 <p><strong>Total Transfers:</strong> {results.total_transfers}</p>
-                <p><strong>Final Bank:</strong> £{results.final_bank}m</p>
+                {f'<p><strong>Horizon:</strong> {settings.get("horizon_weeks", "N/A")} GWs </p>' if settings else ''}
+                {f'<p><strong>Decision Disruption:</strong> {settings.get("decision_disruption_probability", "N/A"):.0%}</p>' if settings else ''}
             </div>
         """,
     ]

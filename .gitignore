@@ -12,9 +12,6 @@ wheels/
 # Environment variables
 .env
 
-# Solver settings (user-specific configuration)
-solver_settings.yaml
-
 # Logs
 logs/
 
@@ -23,5 +20,9 @@ chrome_profile/
 
 # Output files
 output/
+
 # Gmail API credentials (contains OAuth tokens)
 credentials/
+
+# Debug scripts
+debug/

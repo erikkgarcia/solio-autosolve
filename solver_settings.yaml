@@ -12,10 +12,10 @@ timeout: 300
 # Lower values = faster solves, less forward planning
 # Higher values = slower solves, better long-term planning
 # Default: 10 gameweeks
-horizon_weeks: 10
+horizon_weeks: 2
 
 # Decision Disruption Probability (likelihood of needing to deviate from plan)
 # Default: 0.5 (50%)
 # Range: 0.0-1.0 (higher = more transfer flexibility, rolls more transfers)
 # Presets: 0.0 (Clear Skies), 0.25 (Breezy), 0.5 (Cloudy), 0.75 (Foggy), 1.0 (Storm)
-decision_disruption_probability: 0.5
+decision_disruption_probability: 0.75

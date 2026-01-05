@@ -129,14 +129,11 @@ uv run solio-email
 
 # Set up/test Gmail API
 uv run solio-gmail-setup
-
-# Manage solver settings
-uv run solio-settings  # Creates default settings file if it doesn't exist
 ```
 
 ## Solver Settings
 
-You can configure solver parameters in `solver_settings.yaml`:
+Configure solver parameters by editing `solver_settings.yaml` in the project root:
 
 ```yaml
 timeout: 300                          # Script timeout in seconds (default: 300)
@@ -150,40 +147,27 @@ decision_disruption_probability: 0.5  # Transfer flexibility: 0.0-1.0 (default: 
   - Presets: 0.0 (Clear Skies), 0.25 (Breezy), 0.5 (Cloudy), 0.75 (Foggy), 1.0 (Storm)
 - ⏳ **Future**: Transfers, Risk Preference, Player Locks (discovered but not yet implemented)
 
-Settings are automatically applied when running with `--apply-settings`:
-
-```bash
-solio-solve --apply-settings
-```
+Settings are automatically applied every time you run `solio` or `solio --headless`.
 
 **Example 1:** Set horizon to 1 gameweek for quick testing:
-```bash
+```yaml
 # Edit solver_settings.yaml
 horizon_weeks: 1
 decision_disruption_probability: 0.5
-
-# Run solve (completes in ~5s instead of ~70s)
-solio-solve --apply-settings
 ```
 
 **Example 2:** Conservative strategy (low disruption expectation):
-```bash
+```yaml
 # Edit solver_settings.yaml
 horizon_weeks: 10
 decision_disruption_probability: 0.0  # Clear Skies
-
-# Run solve with minimal transfer rolling
-solio-solve --apply-settings
 ```
 
 **Example 3:** Aggressive strategy (high disruption expectation):
-```bash
+```yaml
 # Edit solver_settings.yaml
 horizon_weeks: 10
 decision_disruption_probability: 1.0  # Storm
-
-# Run solve with maximum transfer flexibility
-solio-solve --apply-settings
 ```
 
 ## Scheduled Runs
